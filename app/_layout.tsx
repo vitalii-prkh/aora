@@ -1,6 +1,6 @@
-import React from 'react';
-import { SplashScreen, Stack } from 'expo-router';
-import { useFonts } from 'expo-font';
+import React from "react";
+import {SplashScreen, Stack} from "expo-router";
+import {useFonts} from "expo-font";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -15,7 +15,7 @@ function RootLayout() {
     "Poppins-Regular": require("../assets/fonts/Poppins-Regular.ttf"),
     "Poppins-SemiBold": require("../assets/fonts/Poppins-SemiBold.ttf"),
     "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
-  })
+  });
 
   React.useEffect(() => {
     if (error) throw error;
@@ -35,10 +35,24 @@ function RootLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="profile" />
+      <Stack.Screen
+        name="(tabs)"
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="(auth)"
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="index"
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="search/[query]"
+        options={{headerShown: false}}
+      />
     </Stack>
-  )
+  );
 }
 
 export default RootLayout;

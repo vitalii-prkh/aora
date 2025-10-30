@@ -1,17 +1,24 @@
-import '../global.css';
-import { View, Text } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { Link } from 'expo-router';
+import "../global.css";
+import {Text} from "react-native";
+import {StatusBar} from "expo-status-bar";
+import {Link} from "expo-router";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 function App() {
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-3xl font-pblack">Aora!</Text>
-      <StatusBar style="auto" />
-      <Link href="/profile">
-        Go to profile
+    <SafeAreaView className="h-full bg-primary">
+      <Text className="text-center text-3xl font-bold text-white">Aora!</Text>
+      <Link
+        href="/home"
+        className="text-center text-3xl font-bold text-white"
+      >
+        Go to home
       </Link>
-    </View>
+      <StatusBar
+        backgroundColor="#161622"
+        style="light"
+      />
+    </SafeAreaView>
   );
 }
 
