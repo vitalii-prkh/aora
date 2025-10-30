@@ -1,10 +1,22 @@
-import {View, Text} from "react-native";
+import {Fragment} from "react";
+import {Stack} from "expo-router";
+import {StatusBar} from "../../components/StatusBar";
 
 function AuthLayout() {
   return (
-    <View>
-      <Text>AuthLayout</Text>
-    </View>
+    <Fragment>
+      <Stack>
+        <Stack.Screen
+          name="sign-in"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="sign-up"
+          options={{headerShown: false}}
+        />
+      </Stack>
+      <StatusBar />
+    </Fragment>
   );
 }
 

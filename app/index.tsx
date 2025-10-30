@@ -1,9 +1,9 @@
 import "../global.css";
 import {ScrollView, View, Image, Text} from "react-native";
 import {router} from "expo-router";
-import {StatusBar} from "expo-status-bar";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {images} from "../constants/images";
+import {StatusBar} from "../components/StatusBar";
 import {CustomButton} from "../components/CustomButton";
 
 function ScreenIndex() {
@@ -44,10 +44,7 @@ function ScreenIndex() {
           </CustomButton>
         </View>
       </ScrollView>
-      <StatusBar
-        backgroundColor="#161622"
-        style="light"
-      />
+      <StatusBar />
     </SafeAreaView>
   );
 }
