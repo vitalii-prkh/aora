@@ -3,7 +3,7 @@
     "name": "aora",
     "slug": "aora",
     "version": "1.0.0",
-
+    "scheme": "aora",
     "web": {
       "favicon": "./assets/favicon.png"
     },
