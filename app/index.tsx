@@ -1,12 +1,19 @@
 import "../global.css";
 import {ScrollView, View, Image, Text} from "react-native";
-import {router} from "expo-router";
+import {router, Redirect} from "expo-router";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {images} from "../constants/images";
 import {StatusBar} from "../components/StatusBar";
 import {CustomButton} from "../components/CustomButton";
+import {useGlobalContext} from "../context/GlobalProvider";
 
 function ScreenIndex() {
+  const {isLoading, isLoggedIn} = useGlobalContext();
+
+  if (!isLoading && isLoggedIn) {
+    return <Redirect href="home" />;
+  }
+
   return (
     <SafeAreaView className="h-full bg-primary">
       <ScrollView contentContainerStyle={{height: "100%"}}>

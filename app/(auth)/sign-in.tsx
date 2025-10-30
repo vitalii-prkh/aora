@@ -1,12 +1,16 @@
 import React from "react";
-import {ScrollView, View, Text, Image} from "react-native";
+import {ScrollView, View, Text, Image, Alert} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {router} from "expo-router";
 import {images} from "../../constants/images";
 import {FormField} from "../../components/FormField";
 import {CustomButton} from "../../components/CustomButton";
 import {SwitchSignType} from "../../components/auth/SwitchSignType";
+import {getUser, signIn} from "../../lib/appwrite";
+import {useGlobalContext} from "../../context/GlobalProvider";
 
 function ScreenSignIn() {
+  const {setIsLoading, setIsLoggedIn, setUser} = useGlobalContext();
   const [values, setValues] = React.useState({
     email: "",
     password: "",
@@ -18,8 +22,31 @@ function ScreenSignIn() {
       [name]: value,
     });
   };
-  const handleSubmit = () => {
-    setSubmitting(true);
+  const handleSubmit = async () => {
+    if (!values.email || !values.password) {
+      Alert.alert("Error", "Please fill in all fields");
+    } else {
+      setSubmitting(true);
+
+      try {
+        await signIn(values);
+
+        const result = await getUser();
+
+        setIsLoading(false);
+        setIsLoggedIn(true);
+        setUser(result);
+
+        router.replace("/home");
+      } catch (error) {
+        Alert.alert(
+          "Error",
+          error instanceof Error ? error.message : "Unknown error",
+        );
+      } finally {
+        setSubmitting(false);
+      }
+    }
   };
 
   return (

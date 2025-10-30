@@ -26,7 +26,8 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "package": "com.prkh.aora"
     },
     "android": {
       "adaptiveIcon": {

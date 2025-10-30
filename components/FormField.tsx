@@ -36,7 +36,7 @@ export function FormField(props: FormFieldProps) {
             onPress={() => setShow(!show)}
           >
             <Image
-              source={show ? icons.eye : icons.eyeHide}
+              source={show ? icons.eyeHide : icons.eye}
               resizeMode="contain"
               className="h-6 w-6"
             />

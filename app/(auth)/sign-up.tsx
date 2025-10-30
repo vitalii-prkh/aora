@@ -1,12 +1,16 @@
 import React from "react";
-import {ScrollView, View, Text, Image} from "react-native";
+import {ScrollView, View, Text, Image, Alert} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {router} from "expo-router";
 import {images} from "../../constants/images";
 import {FormField} from "../../components/FormField";
 import {CustomButton} from "../../components/CustomButton";
 import {SwitchSignType} from "../../components/auth/SwitchSignType";
+import {createUser} from "../../lib/appwrite";
+import {useGlobalContext} from "../../context/GlobalProvider";
 
 function ScreenSignUp() {
+  const {setIsLoading, setIsLoggedIn, setUser} = useGlobalContext();
   const [values, setValues] = React.useState({
     email: "",
     username: "",
@@ -19,8 +23,29 @@ function ScreenSignUp() {
       [name]: value,
     });
   };
-  const handleSubmit = () => {
-    setSubmitting(true);
+  const handleSubmit = async () => {
+    if (!values.email || !values.username || !values.password) {
+      Alert.alert("Error", "Please fill in all fields");
+    } else {
+      setSubmitting(true);
+
+      try {
+        const result = await createUser(values);
+
+        setIsLoading(false);
+        setIsLoggedIn(true);
+        setUser(result);
+
+        router.replace("/home");
+      } catch (error) {
+        Alert.alert(
+          "Error",
+          error instanceof Error ? error.message : "Unknown error",
+        );
+      } finally {
+        setSubmitting(false);
+      }
+    }
   };
 
   return (
@@ -63,7 +88,7 @@ function ScreenSignUp() {
             onPress={handleSubmit}
             isLoading={submitting}
           >
-            Sign in
+            Sign up
           </CustomButton>
           <SwitchSignType
             href="/sign-in"
