@@ -1,4 +1,6 @@
 import {useState} from "react";
+
+// TODO try to use expo-video
 import {ResizeMode, Video} from "expo-av";
 import {View, Text, TouchableOpacity, Image} from "react-native";
 import {icons} from "../constants/icons";

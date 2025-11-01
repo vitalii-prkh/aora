@@ -6,13 +6,14 @@ import {InputSearch} from "../../components/InputSearch";
 import {Trending} from "../../components/Trending";
 import {EmptyState} from "../../components/EmptyState";
 import {VideoCard} from "../../components/VideoCard";
-import {getAllPosts} from "../../lib/appwrite";
+import {getAllPosts, getLatestPosts} from "../../lib/appwrite";
 import {useAppwrite} from "../../lib/useAppwrite";
 
 function ScreenHome() {
   const [refreshing, setRefreshing] = useState(false);
 
   const {data, refetch} = useAppwrite(getAllPosts);
+  const {data: latest} = useAppwrite(getLatestPosts);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -58,7 +59,7 @@ function ScreenHome() {
               <Text className="mb-3 font-pregular text-lg text-gray-100">
                 Latest Videos
               </Text>
-              <Trending data={[]} />
+              <Trending data={latest} />
             </View>
           </View>
         )}
