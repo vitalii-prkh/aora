@@ -23,11 +23,12 @@ export function InputSearch({initialQuery}: InputSearchProps) {
 
       <TouchableOpacity
         onPress={() => {
-          if (query === "")
+          if (query === "") {
             return Alert.alert(
               "Missing Query",
               "Please input something to search results across database",
             );
+          }
 
           if (pathname.startsWith("/search")) {
             router.setParams({query});

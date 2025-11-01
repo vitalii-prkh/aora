@@ -1,20 +1,46 @@
 import {Alert} from "react-native";
-import {Models} from "react-native-appwrite";
 import {useEffect, useState} from "react";
 
-type TFn<D> = (...args: unknown[]) => Promise<D>;
+// Generic helpers to infer function argument and return types
+type AwaitedReturn<F extends (...args: any) => Promise<any>> = Awaited<
+  ReturnType<F>
+>;
 
-export function useAppwrite<D extends Models.DefaultRow, Fn extends TFn<D[]>>(
-  fn: Fn,
+type ArgOf<F> = F extends (arg: infer A) => any ? A : undefined;
+
+// Overloads for better inference and required args enforcement
+export function useAppwrite<F extends () => Promise<any>>(
+  fn: F,
+): {
+  data: AwaitedReturn<F>;
+  loading: boolean;
+  refetch: () => Promise<void>;
+};
+export function useAppwrite<F extends (arg: A) => Promise<any>, A>(
+  fn: F,
+  arg: A,
+): {
+  data: AwaitedReturn<F>;
+  loading: boolean;
+  refetch: (nextArg?: A) => Promise<void>;
+};
+
+// Implementation
+export function useAppwrite<F extends (...args: any[]) => Promise<any>, A>(
+  fn: F,
+  arg?: A,
 ) {
-  const [data, setData] = useState<D[]>([] as D[]);
+  const [data, setData] = useState<AwaitedReturn<F>>(
+    [] as unknown as AwaitedReturn<F>,
+  );
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
+  const fetchData = async (nextArg?: A) => {
     setLoading(true);
 
     try {
-      const res = await fn();
+      const effectiveArg = (nextArg !== undefined ? nextArg : arg) as ArgOf<F>;
+      const res: AwaitedReturn<F> = await fn(effectiveArg);
 
       setData(res);
     } catch (error) {
@@ -29,9 +55,10 @@ export function useAppwrite<D extends Models.DefaultRow, Fn extends TFn<D[]>>(
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const refetch = () => fetchData();
+  const refetch = (nextArg?: A) => fetchData(nextArg);
 
   return {data, loading, refetch};
 }

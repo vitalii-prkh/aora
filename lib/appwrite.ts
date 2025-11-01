@@ -29,7 +29,13 @@ const account = new Account(client);
 const avatars = new Avatars(client);
 const tables = new TablesDB(client);
 
-export async function createUser(data) {
+type TUserData = {
+  email: string;
+  password: string;
+  username: string;
+};
+
+export async function createUser(data: TUserData) {
   try {
     const newAccount = await account.create({
       userId: ID.unique(),
@@ -70,7 +76,12 @@ export async function createUser(data) {
   }
 }
 
-export async function signIn(data) {
+type TLoginData = {
+  email: string;
+  password: string;
+};
+
+export async function signIn(data: TLoginData) {
   try {
     return await account.createEmailPasswordSession({
       email: data.email,
@@ -117,7 +128,7 @@ export async function getAllPosts() {
     return posts.rows;
   } catch (error) {
     console.log("[getAllPosts]: ", error);
-    throw new Error(error);
+    throw error;
   }
 }
 
@@ -126,12 +137,27 @@ export async function getLatestPosts() {
     const posts = await tables.listRows({
       databaseId: config.databaseId,
       tableId: config.videosCollectionId,
-      queries: [Query.orderDesc("$createdAt", Query.limit(7))],
+      queries: [Query.orderDesc("$createdAt"), Query.limit(7)],
     });
 
     return posts.rows;
   } catch (error) {
     console.log("[getLatestPosts]: ", error);
-    throw new Error(error);
+    throw error;
+  }
+}
+
+export async function getPostsByQuery({query}: {query: string}) {
+  try {
+    const posts = await tables.listRows({
+      databaseId: config.databaseId,
+      tableId: config.videosCollectionId,
+      queries: query ? [Query.search("title", query)] : [],
+    });
+
+    return posts.rows;
+  } catch (error) {
+    console.log("[getLatestPosts]: ", error);
+    throw error;
   }
 }
