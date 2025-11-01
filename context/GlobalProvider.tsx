@@ -47,7 +47,7 @@ export function GlobalContextProvider(props: PropsWithChildren) {
           setUser(null);
         }
       })
-      .catch((error) => console.log("Error fetching user data"))
+      .catch(() => console.log("Error fetching user data"))
       .finally(() => setIsLoading(false));
   }, []);
 

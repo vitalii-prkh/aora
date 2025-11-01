@@ -17,8 +17,6 @@ function ScreenSearch() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  console.log("ScreenSearch:");
-
   return (
     <SafeAreaView className="h-full bg-primary">
       <FlatList
