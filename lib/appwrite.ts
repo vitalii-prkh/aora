@@ -3,9 +3,11 @@ import {
   Account,
   Avatars,
   TablesDB,
+  Storage,
   ID,
   Query,
 } from "react-native-appwrite";
+import * as DocumentPicker from "expo-document-picker";
 import {arrayBufferToString} from "../utils/arrayBufferToString";
 
 export const config = {
@@ -28,6 +30,7 @@ client
 const account = new Account(client);
 const avatars = new Avatars(client);
 const tables = new TablesDB(client);
+const storage = new Storage(client);
 
 type TUserData = {
   email: string;
@@ -123,6 +126,7 @@ export async function getAllPosts() {
     const posts = await tables.listRows({
       databaseId: config.databaseId,
       tableId: config.videosCollectionId,
+      queries: [Query.select(["*", "creator.*"])],
     });
 
     return posts.rows;
@@ -137,7 +141,11 @@ export async function getLatestPosts() {
     const posts = await tables.listRows({
       databaseId: config.databaseId,
       tableId: config.videosCollectionId,
-      queries: [Query.orderDesc("$createdAt"), Query.limit(7)],
+      queries: [
+        Query.orderDesc("$createdAt"),
+        Query.limit(7),
+        Query.select(["*", "creator.*"]),
+      ],
     });
 
     return posts.rows;
@@ -152,12 +160,131 @@ export async function getPostsByQuery({query}: {query: string}) {
     const posts = await tables.listRows({
       databaseId: config.databaseId,
       tableId: config.videosCollectionId,
-      queries: query ? [Query.search("title", query)] : [],
+      queries: query
+        ? [Query.search("title", query), Query.select(["*", "creator.*"])]
+        : [Query.select(["*", "creator.*"])],
     });
 
     return posts.rows;
   } catch (error) {
     console.log("[getLatestPosts]: ", error);
+    throw error;
+  }
+}
+
+export async function getPostsByUserId({userId}: {userId: string}) {
+  try {
+    const posts = await tables.listRows({
+      databaseId: config.databaseId,
+      tableId: config.videosCollectionId,
+      queries: [
+        Query.equal("creator", userId),
+        Query.select(["*", "creator.*"]),
+      ],
+    });
+
+    return posts.rows;
+  } catch (error) {
+    console.log("[getLatestPosts]: ", error);
+    throw error;
+  }
+}
+
+export async function signOut() {
+  try {
+    return await account.deleteSession({sessionId: "current"});
+  } catch (error) {
+    console.log("[signOut]: ", error);
+  }
+}
+
+type TForm = {
+  title: string;
+  thumbnail: DocumentPicker.DocumentPickerAsset;
+  video: DocumentPicker.DocumentPickerAsset;
+  prompt: string;
+  userId: string;
+};
+
+export async function createVideoPost(form: TForm) {
+  try {
+    const [thumbnailUrl, videoUrl] = await Promise.all([
+      uploadFile(form.thumbnail, "image"),
+      uploadFile(form.video, "video"),
+    ]);
+
+    const newPost = await tables.createRow({
+      databaseId: config.databaseId,
+      tableId: config.videosCollectionId,
+      rowId: ID.unique(),
+      data: {
+        title: form.title,
+        thumbnail: thumbnailUrl,
+        video: videoUrl,
+        prompt: form.prompt,
+        creator: form.userId,
+      },
+    });
+
+    return newPost;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function uploadFile(
+  file: DocumentPicker.DocumentPickerAsset,
+  type: "image" | "video",
+) {
+  if (!file) {
+    return;
+  }
+
+  const {mimeType, size, ...rest} = file;
+
+  try {
+    const uploadedFile = await storage.createFile({
+      bucketId: config.storageId,
+      fileId: ID.unique(),
+      file: {
+        type: mimeType!,
+        size: size!,
+        ...rest,
+      },
+    });
+
+    const fileUrl = await getFilePreview(uploadedFile.$id, type);
+    return fileUrl;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getFilePreview(fileId: string, type: "image" | "video") {
+  let fileUrl;
+
+  try {
+    if (type === "video") {
+      fileUrl = storage.getFileView({bucketId: config.storageId, fileId});
+    } else if (type === "image") {
+      fileUrl = storage.getFilePreview({
+        bucketId: config.storageId,
+        fileId,
+        width: 2000,
+        height: 2000,
+        quality: 100,
+        borderWidth: 100,
+      });
+    } else {
+      throw new Error("Invalid file type");
+    }
+
+    if (!fileUrl) {
+      throw new Error("File url is not available.");
+    }
+
+    return fileUrl;
+  } catch (error) {
     throw error;
   }
 }

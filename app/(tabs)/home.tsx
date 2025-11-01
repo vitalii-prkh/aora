@@ -8,8 +8,10 @@ import {EmptyState} from "../../components/EmptyState";
 import {VideoCard} from "../../components/VideoCard";
 import {getAllPosts, getLatestPosts} from "../../lib/appwrite";
 import {useAppwrite} from "../../lib/useAppwrite";
+import {useGlobalContext} from "../../context/GlobalProvider";
 
 function ScreenHome() {
+  const {user} = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
 
   const {data, refetch} = useAppwrite(getAllPosts);
@@ -43,7 +45,7 @@ function ScreenHome() {
                   Welcome Back
                 </Text>
                 <Text className="font-psemibold text-2xl text-white">
-                  The User
+                  {user?.username}
                 </Text>
               </View>
               <View className="mt-1.5">
