@@ -240,21 +240,19 @@ export async function uploadFile(
     return;
   }
 
-  const {mimeType, size, ...rest} = file;
-
   try {
     const uploadedFile = await storage.createFile({
       bucketId: config.storageId,
       fileId: ID.unique(),
       file: {
-        type: mimeType!,
-        size: size!,
-        ...rest,
+        name: file.name,
+        type: file.mimeType!,
+        size: file.size!,
+        uri: file.uri,
       },
     });
 
-    const fileUrl = await getFilePreview(uploadedFile.$id, type);
-    return fileUrl;
+    return await getFilePreview(uploadedFile.$id, type);
   } catch (error) {
     throw error;
   }
